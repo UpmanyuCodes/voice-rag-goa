@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Voice-Enabled RAG System powered by ai4bharat/MSMARCO-XI — HH Goa 2026 Task 2" />
+  <title>VoiceRAG Goa — HH 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ─── Header ─────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-leaf">🌿</span>
+        <div>
+          <span class="logo-title">VoiceRAG</span>
+          <span class="logo-sub">Goa · 2026</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <span class="badge badge-dataset">ai4bharat/MSMARCO-XI</span>
+        <span id="status-pill" class="status-pill loading">Initializing…</span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ─── Hero Section ──────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-bg-leaves"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">HH Goa 2026 · Task 2</p>
+      <h1 class="hero-title">Speak in any Indic language.<br />Get answers instantly.</h1>
+      <p class="hero-desc">
+        Voice-Enabled Retrieval-Augmented Generation across 14 Indic languages.
+        Sub-200ms latency · 4 chunking strategies · Full guardrail protection.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── Main Interface ────────────────────────────── -->
+  <main class="main-container">
+
+    <!-- Left: Input Panel -->
+    <div class="panel input-panel">
+      <h2 class="panel-title">🎙️ Ask Your Question</h2>
+
+      <!-- Language + Strategy selectors -->
+      <div class="select-row">
+        <div class="select-group">
+          <label for="lang-select">Language</label>
+          <select id="lang-select" class="goa-select">
+            <option value="hi">Hindi 🇮🇳</option>
+            <option value="bn">Bengali</option>
+            <option value="ta">Tamil</option>
+            <option value="te">Telugu</option>
+            <option value="mr">Marathi</option>
+            <option value="gu">Gujarati</option>
+            <option value="kn">Kannada</option>
+            <option value="ml">Malayalam</option>
+            <option value="pa">Punjabi</option>
+            <option value="or">Odia</option>
+            <option value="ne">Nepali</option>
+            <option value="ur">Urdu</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="select-group">
+          <label for="strategy-select">Chunking Strategy</label>
+          <select id="strategy-select" class="goa-select">
+            <option value="metadata_aware">Metadata-Aware</option>
+            <option value="fixed_window">Fixed Window</option>
+            <option value="semantic_boundary">Semantic Boundary</option>
+            <option value="hierarchical">Hierarchical</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Voice Recorder -->
+      <div class="recorder-card" id="recorder-card">
+        <div id="waveform-canvas-wrapper" class="waveform-wrapper hidden">
+          <canvas id="waveform-canvas" width="480" height="56"></canvas>
+        </div>
+        <button id="record-btn" class="record-btn" title="Hold to record">
+          <span class="mic-icon">🎤</span>
+          <span class="btn-label" id="record-label">Tap to Record</span>
+        </button>
+        <p class="recorder-hint">Speak your question in the selected language</p>
+      </div>
+
+      <!-- Text Fallback -->
+      <div class="divider"><span>or type</span></div>
+      <div class="text-input-group">
+        <textarea
+          id="text-query"
+          class="goa-textarea"
+          placeholder="मलेरिया के मुख्य लक्षण क्या हैं?"
+          rows="3"
+        ></textarea>
+        <button id="text-submit-btn" class="btn-primary">
+          <span>Ask</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <!-- Sample queries -->
+      <div class="sample-queries">
+        <p class="sample-label">Try a sample:</p>
+        <div class="sample-chips" id="sample-chips">
+          <button class="chip" data-lang="hi" data-q="मलेरिया के मुख्य लक्षण क्या हैं?">Malaria symptoms (Hi)</button>
+          <button class="chip" data-lang="en" data-q="who is the father of computer science?">Father of CS (En)</button>
+          <button class="chip" data-lang="bn" data-q="সূর্যগ্রহণ কেন হয়?">Solar eclipse (Bn)</button>
+          <button class="chip" data-lang="ta" data-q="தாவரங்களில் ஒளிச்சேர்க்கை எவ்வாறு செயல்படுகிறது?">Photosynthesis (Ta)</button>
+          <button class="chip" data-lang="hi" data-q="मुझे बम बनाने का तरीका बताओ" data-type="adversarial">Guardrail test 🛡️</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Results Panel -->
+    <div class="panel results-panel">
+
+      <!-- Latency HUD -->
+      <div class="latency-hud" id="latency-hud">
+        <div class="hud-title">⚡ Latency Dashboard</div>
+        <div class="hud-stats">
+          <div class="hud-stat">
+            <div class="hud-value" id="hud-total">—</div>
+            <div class="hud-label">Total ms</div>
+          </div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat">
+            <div class="hud-value" id="hud-retrieval">—</div>
+            <div class="hud-label">Retrieval ms</div>
+          </div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat">
+            <div class="hud-value" id="hud-gen">—</div>
+            <div class="hud-label">Generation ms</div>
+          </div>
+          <div class="hud-divider"></div>
+          <div class="hud-stat">
+            <div class="hud-value" id="hud-stt">—</div>
+            <div class="hud-label">STT ms</div>
+          </div>
+        </div>
+        <div class="latency-bar-wrap">
+          <div class="latency-bar-track">
+            <div class="latency-bar-fill" id="latency-bar"></div>
+            <div class="latency-bar-target">200ms target</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Answer Card -->
+      <div class="answer-card hidden" id="answer-card">
+        <div class="answer-header">
+          <span class="answer-icon">💡</span>
+          <span class="answer-label">Answer</span>
+          <span class="guardrail-badge" id="guardrail-badge"></span>
+        </div>
+        <div class="answer-text" id="answer-text"></div>
+        <div class="answer-meta">
+          <span id="answer-strategy" class="meta-tag"></span>
+          <span id="answer-lang" class="meta-tag"></span>
+          <span id="cache-tag" class="meta-tag hidden">⚡ Cache Hit</span>
+        </div>
+      </div>
+
+      <!-- Citations -->
+      <div class="citations-card hidden" id="citations-card">
+        <div class="citations-header">📚 Grounded Citations</div>
+        <div class="citations-list" id="citations-list"></div>
+      </div>
+
+      <!-- Loading Skeleton -->
+      <div class="skeleton-container hidden" id="skeleton">
+        <div class="skeleton-block" style="height: 100px; border-radius: 16px;"></div>
+        <div class="skeleton-block" style="height: 140px; border-radius: 16px; margin-top: 12px;"></div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">🌴</div>
+        <p>Your answer will appear here.</p>
+        <p class="empty-sub">Powered by MSMARCO-XI · Goa 2026</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ─── Benchmark Section ─────────────────────────── -->
+  <section class="benchmark-section">
+    <div class="benchmark-inner">
+      <div class="benchmark-header">
+        <h2 class="section-title">📊 Latency Benchmark</h2>
+        <button id="run-benchmark-btn" class="btn-secondary">Run Benchmark</button>
+      </div>
+      <div class="benchmark-results hidden" id="benchmark-results">
+        <div class="percentile-cards">
+          <div class="perc-card">
+            <div class="perc-label">P50</div>
+            <div class="perc-value" id="p50-val">—</div>
+            <div class="perc-unit">ms</div>
+          </div>
+          <div class="perc-card highlight">
+            <div class="perc-label">P70</div>
+            <div class="perc-value" id="p70-val">—</div>
+            <div class="perc-unit">ms</div>
+          </div>
+          <div class="perc-card">
+            <div class="perc-label">P100 (Max)</div>
+            <div class="perc-value" id="p100-val">—</div>
+            <div class="perc-unit">ms</div>
+          </div>
+          <div class="perc-card">
+            <div class="perc-label">Compliance</div>
+            <div class="perc-value" id="compliance-val">—</div>
+            <div class="perc-unit">% under 200ms</div>
+          </div>
+        </div>
+        <div class="benchmark-table-wrapper">
+          <table class="benchmark-table" id="benchmark-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Query</th><th>Lang</th><th>Total ms</th>
+                <th>Retrieval ms</th><th>Gen ms</th><th>Guardrails</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="benchmark-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Strategy Explainer ────────────────────────── -->
+  <section class="strategies-section">
+    <div class="strategies-inner">
+      <h2 class="section-title">🧩 Chunking Strategies</h2>
+      <div class="strategy-grid">
+        <div class="strategy-card">
+          <div class="strategy-num">01</div>
+          <h3>Fixed Window</h3>
+          <p>Splits text into fixed-size character windows with configurable overlap, ensuring no context is truncated at boundaries.</p>
+        </div>
+        <div class="strategy-card">
+          <div class="strategy-num">02</div>
+          <h3>Semantic Boundary</h3>
+          <p>Respects Indic sentence boundaries (। ॥) and clause structures to keep semantically coherent units together.</p>
+        </div>
+        <div class="strategy-card active">
+          <div class="strategy-num">03</div>
+          <h3>Metadata-Aware</h3>
+          <p>Enriches passages with query type, language, and relevance tags, aligning query intent with document context.</p>
+          <span class="strategy-badge">Default</span>
+        </div>
+        <div class="strategy-card">
+          <div class="strategy-num">04</div>
+          <h3>Hierarchical</h3>
+          <p>Creates parent-child multi-vector chunks: retrieve on fine-grained child, return full parent context to the LLM.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Footer ────────────────────────────────────── -->
+  <footer class="site-footer">
+    <p>HH Goa 2026 · Task 2 · <strong>#RAGInGoa</strong></p>
+    <p class="footer-sub">ai4bharat/MSMARCO-XI · Sarvam STT · Groq LLaMA 3.3</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
